@@ -1,0 +1,386 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Batavia Store — Server Boost</title>
+  <style>
+    :root{--bg:#0b1020;--card:#111a33;--text:#eaf0ff;--muted:#b7c3ff;--line:rgba(255,255,255,.12);--radius:18px;--shadow:0 20px 60px rgba(0,0,0,.35);--accent1:rgba(126,165,255,1);--accent2:rgba(255,130,200,1)}
+    *{box-sizing:border-box}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;color:var(--text);background:radial-gradient(900px 520px at 10% 10%, rgba(126,165,255,.26), transparent 60%),radial-gradient(850px 460px at 90% 18%, rgba(255,130,200,.20), transparent 60%),var(--bg);min-height:100vh}
+    .wrap{max-width:1150px;margin:0 auto;padding:22px}
+    .nav{position:sticky;top:0;z-index:50;backdrop-filter:blur(10px);background:rgba(11,16,32,.58);border-bottom:1px solid var(--line)}
+    .nav-inner{max-width:1150px;margin:0 auto;padding:14px 22px;display:flex;align-items:center;justify-content:space-between;gap:14px}
+    .brand{display:flex;gap:10px;align-items:center;font-weight:900}
+    .logo{width:34px;height:34px;border-radius:12px;background:linear-gradient(135deg,var(--accent1),var(--accent2))}
+    .btn{display:inline-flex;align-items:center;justify-content:center;padding:11px 14px;border-radius:14px;border:1px solid var(--line);background:rgba(255,255,255,.06);color:var(--text);cursor:pointer;user-select:none;white-space:nowrap}
+    .btn.primary{border:none;background:linear-gradient(135deg,var(--accent1),var(--accent2))}
+    .btn.small{padding:8px 10px;border-radius:12px;font-size:13px}
+    .btn.danger{border:1px solid rgba(255,130,200,.35);background:rgba(255,130,200,.08)}
+    .pill{display:inline-flex;gap:10px;align-items:center;padding:10px 12px;border-radius:14px;border:1px solid var(--line);background:rgba(255,255,255,.04);color:var(--muted);font-size:13px}
+    .hero{border:1px solid var(--line);border-radius:var(--radius);background:rgba(17,26,51,.78);box-shadow:var(--shadow);padding:18px;margin-top:18px;display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap}
+    h1{margin:8px 0 6px;font-size:clamp(28px,4vw,42px)}
+    .sub{margin:0;color:var(--muted);line-height:1.6;max-width:75ch}
+    .grid{display:grid;gap:14px;grid-template-columns:repeat(3,1fr);margin-top:16px}
+    @media(max-width:980px){.grid{grid-template-columns:repeat(2,1fr)}}
+    @media(max-width:640px){.grid{grid-template-columns:1fr}}
+    .card{border:1px solid var(--line);border-radius:var(--radius);background:rgba(17,26,51,.78);box-shadow:var(--shadow);overflow:hidden;display:flex;flex-direction:column}
+    .thumb{padding:12px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:10px;background:rgba(255,255,255,.03)}
+    .tag{display:inline-flex;padding:6px 10px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.05);color:var(--muted);font-size:12px}
+    .priceBox{display:flex;flex-direction:column;gap:6px;align-items:flex-end;text-align:right}
+    .priceIDR{font-weight:900;padding:8px 10px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.06)}
+    .priceUSD{font-size:12px;color:var(--muted)}
+    .body{padding:14px;display:flex;flex-direction:column;gap:10px;flex:1}
+    .desc{margin:0;color:var(--muted);line-height:1.55;font-size:14px}
+    .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:auto}
+    .backdrop{position:fixed;inset:0;background:rgba(0,0,0,.52);display:none;z-index:80}
+    .backdrop.show{display:block}
+    .drawer{position:fixed;top:0;right:0;height:100vh;width:min(520px,100vw);background:rgba(17,26,51,.94);border-left:1px solid var(--line);box-shadow:var(--shadow);transform:translateX(110%);transition:.18s;z-index:90;display:flex;flex-direction:column}
+    .drawer.show{transform:translateX(0)}
+    .head{padding:16px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:10px}
+    .body2{padding:14px 16px;overflow:auto;flex:1}
+    .foot{padding:14px 16px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:10px}
+    .item{border:1px solid var(--line);background:rgba(255,255,255,.04);border-radius:16px;padding:12px;margin-bottom:10px}
+    .row{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}
+    .muted{color:var(--muted)}
+    input,select{width:100%;padding:12px 12px;border-radius:14px;border:1px solid var(--line);background:rgba(255,255,255,.04);color:var(--text);outline:none}
+    label{font-size:12px;color:var(--muted)}
+    .panel{border:1px solid var(--line);background:rgba(255,255,255,.04);border-radius:16px;padding:14px}
+    .toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:rgba(17,26,51,.92);border:1px solid var(--line);border-radius:16px;padding:12px 14px;display:none;z-index:120;max-width:min(760px,calc(100vw - 32px))}
+    .toast.show{display:block}
+  </style>
+</head>
+<body>
+  <header class="nav">
+    <div class="nav-inner">
+      <div class="brand"><span class="logo"></span><span>Batavia Store</span></div>
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+        <span class="pill" id="fxPill"></span>
+        <button class="btn primary" id="openCart">🛒 Cart <span id="cartCount" class="pill" style="padding:6px 10px">0</span></button>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="hero">
+      <div>
+        <h1>Server Boost</h1>
+        <p class="sub">Checkout via <b>QRIS (Midtrans Core)</b>, <b>PayPal</b>, or <b>Revolut</b>. Discord invite link required.</p>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn" id="resetCart">Reset cart</button>
+      </div>
+    </section>
+
+    <section class="grid" id="grid"></section>
+  </main>
+
+  <div class="backdrop" id="backdrop"></div>
+  <aside class="drawer" id="drawer">
+    <div class="head">
+      <b>Your cart</b>
+      <button class="btn small" id="closeCart">Close</button>
+    </div>
+
+    <div class="body2">
+      <div id="cartItems"></div>
+
+      <div class="panel" style="margin-top:12px">
+        <b>Customer info</b>
+        <div style="display:grid;gap:10px;grid-template-columns:1fr 1fr;margin-top:10px">
+          <div><label>Name</label><input id="name" placeholder="Nama kamu"></div>
+          <div><label>Email</label><input id="email" type="email" placeholder="email@contoh.com"></div>
+        </div>
+
+        <div style="margin-top:10px">
+          <label>Discord invite link (required)</label>
+          <input id="discordInvite" placeholder="https://discord.gg/xxxxx">
+        </div>
+
+        <div style="margin-top:10px">
+          <label>Payment method</label>
+          <select id="payMethod">
+            <option value="midtrans_qris">QRIS (Midtrans)</option>
+            <option value="paypal">PayPal</option>
+            <option value="revolut">Revolut</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="panel" id="paypalPanel" style="display:none;margin-top:12px">
+        <b>PayPal</b>
+        <div class="muted" style="font-size:12px;margin-top:6px">Use the PayPal button below.</div>
+        <div id="paypal-button-container" style="margin-top:10px"></div>
+      </div>
+
+      <div class="panel" id="qrisPanel" style="display:none;margin-top:12px">
+        <b>Scan QRIS</b>
+        <div class="muted" id="qrisStatus" style="margin-top:6px;font-size:12px">pending</div>
+        <div style="display:flex;justify-content:center;margin-top:12px">
+          <img id="qrisImg" alt="QRIS" style="max-width:280px;width:100%;border-radius:12px;border:1px solid var(--line);background:#fff;padding:10px">
+        </div>
+        <button class="btn" id="closeQris" style="margin-top:10px;width:100%">Close QR</button>
+      </div>
+    </div>
+
+    <div class="foot">
+      <div class="row"><span class="muted">Total</span><b id="total">Rp0</b></div>
+      <button class="btn primary" id="payNow">Pay now</button>
+      <button class="btn danger" id="clearCart">Clear cart</button>
+    </div>
+  </aside>
+
+  <div class="toast" id="toast"></div>
+
+  <!-- PayPal JS SDK (replace client-id) -->
+  <script src="https://www.paypal.com/sdk/js?client-id=Abnq2tqTsP03kYJpZrwZw85Dl6c9ya9GDuuEl9kJfuQdi7E6L1Up3wFFns0EY9OIFEKrC8Xd0e4B0IMG&currency=USD"></script>
+
+  <script>
+    const FX_USD_TO_IDR = 16855.54;
+    const fmtIDR = new Intl.NumberFormat("id-ID", { style:"currency", currency:"IDR", maximumFractionDigits:0 });
+    const fmtUSD = new Intl.NumberFormat("en-US", { style:"currency", currency:"USD", minimumFractionDigits:2, maximumFractionDigits:2 });
+    document.getElementById("fxPill").textContent = `💱 1 USD ≈ ${new Intl.NumberFormat("id-ID").format(FX_USD_TO_IDR)} IDR`;
+
+    const PRODUCTS = [
+      { id:"sb1-2x",  name:"2x Boost — 1 Bulan",  category:"Server Boost 1 Bulan", price_idr:25000 },
+      { id:"sb1-6x",  name:"6x Boost — 1 Bulan",  category:"Server Boost 1 Bulan", price_idr:50000 },
+      { id:"sb1-10x", name:"10x Boost — 1 Bulan", category:"Server Boost 1 Bulan", price_idr:75000 },
+      { id:"sb1-14x", name:"14x Boost — 1 Bulan", category:"Server Boost 1 Bulan", price_idr:85000 },
+      { id:"sb3-2x",  name:"2x Boost — 3 Bulan",  category:"Server Boost 3 Bulan", price_idr:35000 },
+      { id:"sb3-6x",  name:"6x Boost — 3 Bulan",  category:"Server Boost 3 Bulan", price_idr:95000 },
+      { id:"sb3-10x", name:"10x Boost — 3 Bulan", category:"Server Boost 3 Bulan", price_idr:170000 },
+      { id:"sb3-14x", name:"14x Boost — 3 Bulan", category:"Server Boost 3 Bulan", price_idr:210000 }
+    ];
+
+    const CART_KEY = "batavia_cart_vercel_v1";
+    let cart = JSON.parse(localStorage.getItem(CART_KEY) || "{}");
+
+    const grid = document.getElementById("grid");
+    const drawer = document.getElementById("drawer");
+    const backdrop = document.getElementById("backdrop");
+    const cartItems = document.getElementById("cartItems");
+    const cartCount = document.getElementById("cartCount");
+    const totalEl = document.getElementById("total");
+    const toast = document.getElementById("toast");
+
+    const payMethod = document.getElementById("payMethod");
+    const paypalPanel = document.getElementById("paypalPanel");
+    const qrisPanel = document.getElementById("qrisPanel");
+    const qrisImg = document.getElementById("qrisImg");
+    const qrisStatus = document.getElementById("qrisStatus");
+
+    let poll = null;
+
+    function showToast(msg){
+      toast.textContent = msg;
+      toast.classList.add("show");
+      clearTimeout(window.__t);
+      window.__t = setTimeout(()=>toast.classList.remove("show"), 2600);
+    }
+
+    function usdFromIdr(idr){ return idr / FX_USD_TO_IDR; }
+    function priceBoth(idr){ return `${fmtIDR.format(idr)} (≈ ${fmtUSD.format(usdFromIdr(idr))})`; }
+    function getProduct(id){ return PRODUCTS.find(p=>p.id===id); }
+    function saveCart(){ localStorage.setItem(CART_KEY, JSON.stringify(cart)); }
+    function countCart(){ return Object.values(cart).reduce((s,it)=>s+it.qty,0); }
+    function totalIDR(){ return Object.values(cart).reduce((s,it)=>{ const p=getProduct(it.id); return s+(p?p.price_idr*it.qty:0); },0); }
+    function buildItems(){ return Object.values(cart).map(ci => ({ id: ci.id, qty: ci.qty })); }
+
+    function addToCart(id){ cart[id]=cart[id]||{id,qty:0}; cart[id].qty++; saveCart(); renderCart(); showToast("Added."); }
+    function inc(id){ cart[id].qty++; saveCart(); renderCart(); }
+    function dec(id){ cart[id].qty--; if(cart[id].qty<=0) delete cart[id]; saveCart(); renderCart(); }
+    function clearCart(){ cart={}; saveCart(); renderCart(); }
+
+    function renderProducts(){
+      grid.innerHTML="";
+      PRODUCTS.forEach(p=>{
+        const card=document.createElement("div");
+        card.className="card";
+        card.innerHTML=`
+          <div class="thumb">
+            <span class="tag">${p.category}</span>
+            <div class="priceBox">
+              <div class="priceIDR">${fmtIDR.format(p.price_idr)}</div>
+              <div class="priceUSD">≈ ${fmtUSD.format(usdFromIdr(p.price_idr))}</div>
+            </div>
+          </div>
+          <div class="body">
+            <b>${p.name}</b>
+            <p class="desc">Digital service. Discord invite link required.</p>
+            <div class="actions"><button class="btn primary">Add to cart</button></div>
+          </div>`;
+        card.querySelector("button").onclick=()=>addToCart(p.id);
+        grid.appendChild(card);
+      });
+    }
+
+    function renderCart(){
+      cartCount.textContent=countCart();
+      totalEl.textContent=priceBoth(totalIDR());
+      cartItems.innerHTML="";
+      const ids=Object.keys(cart);
+      if(!ids.length){ cartItems.innerHTML=`<div class="muted"><b>Cart kosong.</b></div>`; return; }
+
+      ids.forEach(id=>{
+        const it=cart[id]; const p=getProduct(id);
+        const div=document.createElement("div");
+        div.className="item";
+        div.innerHTML=`
+          <div style="display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap">
+            <div>
+              <b>${p.name}</b>
+              <div class="muted" style="font-size:13px">${priceBoth(p.price_idr)} each</div>
+            </div>
+            <div style="display:flex;gap:8px;align-items:center">
+              <button class="btn small" data-dec>−</button>
+              <b>${it.qty}</b>
+              <button class="btn small" data-inc>+</button>
+            </div>
+          </div>`;
+        div.querySelector("[data-inc]").onclick=()=>inc(id);
+        div.querySelector("[data-dec]").onclick=()=>dec(id);
+        cartItems.appendChild(div);
+      });
+    }
+
+    function openCart(){ drawer.classList.add("show"); backdrop.classList.add("show"); }
+    function closeCart(){ drawer.classList.remove("show"); backdrop.classList.remove("show"); }
+
+    document.getElementById("openCart").onclick=()=>{renderCart();openCart();};
+    document.getElementById("closeCart").onclick=closeCart;
+    backdrop.onclick=closeCart;
+    document.getElementById("resetCart").onclick=()=>{clearCart();showToast("Reset.");};
+    document.getElementById("clearCart").onclick=()=>{clearCart();showToast("Cleared.");};
+
+    function showPanels(){
+      paypalPanel.style.display = (payMethod.value==="paypal") ? "block" : "none";
+      if(payMethod.value!=="midtrans_qris"){
+        qrisPanel.style.display="none";
+        if(poll) clearInterval(poll);
+        poll=null;
+      }
+    }
+    payMethod.addEventListener("change", showPanels);
+    showPanels();
+
+    async function createOrder(provider){
+      const invite = document.getElementById("discordInvite").value.trim();
+      if(!invite) throw new Error("Discord invite link wajib.");
+
+      const r = await fetch("/api/orders-create",{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body: JSON.stringify({
+          provider,
+          items: buildItems(),
+          customer_name: document.getElementById("name").value.trim(),
+          customer_email: document.getElementById("email").value.trim(),
+          discord_invite: invite
+        })
+      });
+      const data = await r.json();
+      if(!r.ok) throw new Error(data.error || "Create order failed");
+      return data.orderId;
+    }
+
+    async function payQRIS(){
+      if(!countCart()) throw new Error("Cart kosong.");
+      const orderId = await createOrder("midtrans_qris");
+
+      const r = await fetch("/api/midtrans-qris-charge",{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body: JSON.stringify({ orderId })
+      });
+      const data = await r.json();
+      if(!r.ok) throw new Error("QRIS charge error");
+      if(!data.qrImageUrl) throw new Error("No QR image url returned");
+
+      qrisImg.src = data.qrImageUrl;
+      qrisStatus.textContent = "pending";
+      qrisPanel.style.display="block";
+
+      if(poll) clearInterval(poll);
+      poll = setInterval(async ()=>{
+        const sr = await fetch(`/api/midtrans-status?orderId=${encodeURIComponent(orderId)}`);
+        const st = await sr.json();
+        if(!sr.ok) return;
+        const ts = st.transaction_status || "unknown";
+        qrisStatus.textContent = ts;
+        if(ts==="settlement" || ts==="capture"){
+          clearInterval(poll); poll=null;
+          showToast("Paid (QRIS) ✅");
+          clearCart();
+          qrisPanel.style.display="none";
+          closeCart();
+        }
+        if(ts==="expire" || ts==="cancel" || ts==="deny"){
+          clearInterval(poll); poll=null;
+          showToast(`Payment ${ts}`);
+        }
+      }, 3000);
+    }
+
+    document.getElementById("closeQris").onclick=()=>{
+      qrisPanel.style.display="none";
+      if(poll) clearInterval(poll);
+      poll=null;
+    };
+
+    // PayPal buttons (real)
+    let localPayPalOrderId = null;
+    if(window.paypal){
+      paypal.Buttons({
+        createOrder: async () => {
+          localPayPalOrderId = await createOrder("paypal");
+          const r = await fetch("/api/paypal-create",{
+            method:"POST",
+            headers:{"Content-Type":"application/json"},
+            body: JSON.stringify({ orderId: localPayPalOrderId })
+          });
+          const data = await r.json();
+          if(!r.ok) throw new Error(data.error || "PayPal create failed");
+          return data.paypalOrderId;
+        },
+        onApprove: async () => {
+          const r = await fetch("/api/paypal-capture",{
+            method:"POST",
+            headers:{"Content-Type":"application/json"},
+            body: JSON.stringify({ orderId: localPayPalOrderId })
+          });
+          const out = await r.json();
+          if(!r.ok || !out.paid) { showToast("PayPal capture failed"); return; }
+          showToast("Paid (PayPal) ✅");
+          clearCart();
+          closeCart();
+        }
+      }).render("#paypal-button-container");
+    }
+
+    async function payRevolut(){
+      if(!countCart()) throw new Error("Cart kosong.");
+      const orderId = await createOrder("revolut");
+      const r = await fetch("/api/revolut-checkout",{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body: JSON.stringify({ orderId })
+      });
+      const data = await r.json();
+      if(!r.ok || !data.checkout_url) throw new Error("Revolut error");
+      window.location.href = data.checkout_url;
+    }
+
+    document.getElementById("payNow").onclick = async ()=>{
+      try{
+        if(payMethod.value==="paypal") return showToast("Use PayPal button below.");
+        if(payMethod.value==="midtrans_qris") return await payQRIS();
+        if(payMethod.value==="revolut") return await payRevolut();
+      }catch(e){
+        showToast(e.message || "Payment error");
+      }
+    };
+
+    renderProducts(); renderCart();
+  </script>
+</body>
+</html>
