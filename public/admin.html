@@ -1,0 +1,64 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Batavia Store — Admin</title>
+  <style>
+    body{font-family:system-ui,Segoe UI,Roboto,Arial; margin:0; background:#0b1020; color:#eaf0ff}
+    .wrap{max-width:1100px; margin:0 auto; padding:22px}
+    .card{background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.12); border-radius:16px; padding:14px; margin-top:12px}
+    table{width:100%; border-collapse:collapse; margin-top:10px}
+    th,td{border-bottom:1px solid rgba(255,255,255,.12); padding:10px; text-align:left; font-size:14px}
+    th{color:#b7c3ff}
+    .pill{display:inline-block; padding:6px 10px; border-radius:999px; border:1px solid rgba(255,255,255,.12); background:rgba(255,255,255,.06); font-size:12px}
+    a{color:#b7c3ff}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Admin</h1>
+    <div class="card" id="out">Loading…</div>
+    <div class="card">
+      <table>
+        <thead>
+          <tr>
+            <th>Created</th><th>Order</th><th>Status</th><th>Provider</th><th>IDR</th><th>USD</th><th>Discord</th>
+          </tr>
+        </thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    const token = new URLSearchParams(location.search).get("token");
+    const out = document.getElementById("out");
+    const rows = document.getElementById("rows");
+
+    async function run(){
+      if(!token){ out.textContent = "Missing ?token=..."; return; }
+      const r = await fetch(`/api/admin-orders?token=${encodeURIComponent(token)}`);
+      const data = await r.json();
+      if(!r.ok){ out.textContent = "Unauthorized / error"; return; }
+
+      out.textContent = `Orders: ${data.length}`;
+      rows.innerHTML = "";
+      for(const o of data){
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${o.created_at}</td>
+          <td><span class="pill">${o.id}</span></td>
+          <td><span class="pill">${o.status}</span></td>
+          <td>${o.provider}</td>
+          <td>${o.amount_idr}</td>
+          <td>${o.amount_usd}</td>
+          <td><a href="${o.discord_invite}" target="_blank" rel="noopener">${o.discord_invite}</a></td>
+        `;
+        rows.appendChild(tr);
+      }
+    }
+    run();
+  </script>
+</body>
+</html>
