@@ -1,0 +1,9 @@
+{
+  "name": "batavia-store",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@paypal/paypal-server-sdk": "^0.7.0",
+    "@vercel/postgres": "^0.10.0"
+  }
+}
