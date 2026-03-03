@@ -34,7 +34,8 @@ export default async function handler(req, res) {
 
     res.json({ orderId: id, amount_idr, amount_usd });
   } catch (e) {
-  console.error("ORDER CREATE ERROR:", e);
+  console.error("ORDERS-CREATE ERROR:", e?.message || e);
+  console.error("BODY RECEIVED:", req.body);
   res.status(400).json({ error: e.message || "Create order error" });
 }
 }
